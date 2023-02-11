@@ -102,7 +102,7 @@ class _RtspEntryFieldWidgetState extends State<RtspEntryFieldWidget> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      iconSize: height * 0.08,
+                      iconSize: height * 0.2,
                       onPressed: widget.onClickClose,
                       icon: Image.asset(
                         AppAssets.close,
@@ -111,7 +111,7 @@ class _RtspEntryFieldWidgetState extends State<RtspEntryFieldWidget> {
                     Flexible(
                       child: IconButton(
                         onPressed: widget.onClickStart,
-                        iconSize: height * 0.08,
+                        iconSize: height * 0.1,
                         icon: Image.asset(
                           AppAssets.right,
                           color: AppColors.colorGreen,
