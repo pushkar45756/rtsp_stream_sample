@@ -4,6 +4,7 @@ import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:stream_sample/constants/app_colors.dart';
 import 'package:stream_sample/constants/app_strings.dart';
 import 'package:stream_sample/constants/network_constants.dart';
+import 'package:stream_sample/widgets/curve.dart';
 import 'package:stream_sample/widgets/rtsp_entry_field.dart';
 import 'package:stream_sample/widgets/vlc_media.dart';
 
@@ -24,6 +25,11 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _textEditingController;
   var _showInput = false;
   String? _errorText;
+  bool isPoly = false;
+  double? xV;
+  double? yV;
+
+  int i = 0;
 
   @override
   void initState() {
@@ -144,30 +150,113 @@ class _MyHomePageState extends State<MyHomePage> {
                           size: height * 0.2,
                         ),
                       ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            isPoly = !isPoly;
+                          });
+                        },
+                        child: Container(
+                            padding: EdgeInsets.fromLTRB(10, 15, 20, 10),
+                            child: Icon(
+                              Icons.polyline,
+                              color: AppColors.colorWhite,
+                              size: height * 0.1,
+                            )),
+                      ),
+                      Expanded(child: Container()),
+                      isPoly
+                          ? Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      isPoly = false;
+                                    });
+                                    Future.delayed(Duration.zero, () {
+                                      setState(() {
+                                        isPoly = true;
+                                      });
+                                    });
+                                  },
+                                  child: Container(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 15, 5, 10),
+                                      child: Icon(
+                                        Icons.refresh,
+                                        color: Colors.yellow,
+                                        size: height * 0.1,
+                                      )),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      isPoly = false;
+                                    });
+                                  },
+                                  child: Container(
+                                      padding:
+                                          EdgeInsets.fromLTRB(5, 15, 10, 10),
+                                      child: Icon(
+                                        Icons.clear_rounded,
+                                        color: Colors.red,
+                                        size: height * 0.1,
+                                      )),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      isPoly = false;
+                                    });
+                                  },
+                                  child: Container(
+                                      padding:
+                                          EdgeInsets.fromLTRB(0, 15, 10, 10),
+                                      child: Icon(
+                                        Icons.done_rounded,
+                                        color: Colors.green,
+                                        size: height * 0.1,
+                                      )),
+                                ),
+                              ],
+                            )
+                          : Container()
                     ],
                   ),
                 ),
-              )
+              ),
+              isPoly
+                  ? Positioned(
+                      top: 0,
+                      bottom: 70,
+                      left: 0,
+                      right: 0,
+                      child: InfiniteCanvasPage(i))
+                  : Container()
             ],
           ),
         ),
       ),
-      floatingActionButton: _controller != null && !_showInput
-          ? FloatingActionButton(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onPressed: () {
-                if (_controller != null) {
-                  setState(() {
+      floatingActionButton: !isPoly
+          ? _controller != null && !_showInput
+              ? FloatingActionButton(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onPressed: () {
+                    if (_controller != null) {
+                      setState(() {
+                        _controller!.value.isPlaying
+                            ? _controller!.pause()
+                            : _controller!.play();
+                      });
+                    }
+                  },
+                  child: Icon(
                     _controller!.value.isPlaying
-                        ? _controller!.pause()
-                        : _controller!.play();
-                  });
-                }
-              },
-              child: Icon(
-                _controller!.value.isPlaying ? Icons.play_arrow : Icons.pause,
-              ),
-            )
+                        ? Icons.play_arrow
+                        : Icons.pause,
+                  ),
+                )
+              : null
           : null,
     );
   }
@@ -179,3 +268,266 @@ class _MyHomePageState extends State<MyHomePage> {
     await _controller?.dispose();
   }
 }
+
+// class ResizebleWidget extends StatefulWidget {
+//   ResizebleWidget({this.child});
+
+//   final Widget? child;
+//   @override
+//   _ResizebleWidgetState createState() => _ResizebleWidgetState();
+// }
+
+// const ballDiameter = 20.0;
+
+// class _ResizebleWidgetState extends State<ResizebleWidget> {
+//   double height = 100;
+//   double width = 200;
+
+//   double top = 100;
+//   double left = 200;
+
+//   void onDrag(double dx, double dy) {
+//     var newHeight = height + dy;
+//     var newWidth = width + dx;
+
+//     setState(() {
+//       height = newHeight > 0 ? newHeight : 0;
+//       width = newWidth > 0 ? newWidth : 0;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       children: <Widget>[
+//         Positioned(
+//           top: top,
+//           left: left,
+//           child: Container(
+//             height: height,
+//             width: width,
+//             child: widget.child,
+//           ),
+//         ),
+//         // top left
+//         Positioned(
+//           top: top - ballDiameter / 2,
+//           left: left - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var mid = (dx + dy) / 2;
+//               var newHeight = height - 2 * mid;
+//               var newWidth = width - 2 * mid;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//                 width = newWidth > 0 ? newWidth : 0;
+//                 top = top + mid;
+//                 left = left + mid;
+//               });
+//             },
+//           ),
+//         ),
+//         // top middle
+//         Positioned(
+//           top: top - ballDiameter / 2,
+//           left: left + width / 2 - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var newHeight = height - dy;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//                 top = top + dy;
+//               });
+//             },
+//           ),
+//         ),
+//         // top right
+//         Positioned(
+//           top: top - ballDiameter / 2,
+//           left: left + width - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var mid = (dx + (dy * -1)) / 2;
+
+//               var newHeight = height + 2 * mid;
+//               var newWidth = width + 2 * mid;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//                 width = newWidth > 0 ? newWidth : 0;
+//                 top = top - mid;
+//                 left = left - mid;
+//               });
+//             },
+//           ),
+//         ),
+//         // center right
+//         Positioned(
+//           top: top + height / 2 - ballDiameter / 2,
+//           left: left + width - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var newWidth = width + dx;
+
+//               setState(() {
+//                 width = newWidth > 0 ? newWidth : 0;
+//               });
+//             },
+//           ),
+//         ),
+//         // bottom right
+//         Positioned(
+//           top: top + height - ballDiameter / 2,
+//           left: left + width - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var mid = (dx + dy) / 2;
+
+//               var newHeight = height + 2 * mid;
+//               var newWidth = width + 2 * mid;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//                 width = newWidth > 0 ? newWidth : 0;
+//                 top = top - mid;
+//                 left = left - mid;
+//               });
+//             },
+//           ),
+//         ),
+//         // bottom center
+//         Positioned(
+//           top: top + height - ballDiameter / 2,
+//           left: left + width / 2 - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var newHeight = height + dy;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//               });
+//             },
+//           ),
+//         ),
+//         // bottom left
+//         Positioned(
+//           top: top + height - ballDiameter / 2,
+//           left: left - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var mid = ((dx * -1) + dy) / 2;
+
+//               var newHeight = height + 2 * mid;
+//               var newWidth = width + 2 * mid;
+
+//               setState(() {
+//                 height = newHeight > 0 ? newHeight : 0;
+//                 width = newWidth > 0 ? newWidth : 0;
+//                 top = top - mid;
+//                 left = left - mid;
+//               });
+//             },
+//           ),
+//         ),
+//         //left center
+//         Positioned(
+//           top: top + height / 2 - ballDiameter / 2,
+//           left: left - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               var newWidth = width - dx;
+
+//               setState(() {
+//                 width = newWidth > 0 ? newWidth : 0;
+//                 left = left + dx;
+//               });
+//             },
+//           ),
+//         ),
+//         // center center
+//         Positioned(
+//           top: top + height / 2 - ballDiameter / 2,
+//           left: left + width / 2 - ballDiameter / 2,
+//           child: ManipulatingBall(
+//             onDrag: (dx, dy) {
+//               setState(() {
+//                 top = top + dy;
+//                 left = left + dx;
+//               });
+//             },
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class ManipulatingBall extends StatefulWidget {
+//   ManipulatingBall({this.onDrag});
+
+//   Function? onDrag;
+
+//   @override
+//   _ManipulatingBallState createState() => _ManipulatingBallState();
+// }
+
+// class _ManipulatingBallState extends State<ManipulatingBall> {
+//   double? initX;
+//   double? initY;
+
+//   _handleDrag(details) {
+//     setState(() {
+//       initX = details.globalPosition.dx;
+//       initY = details.globalPosition.dy;
+//     });
+//   }
+
+//   _handleUpdate(details) {
+//     var dx = details.globalPosition.dx - initX;
+//     var dy = details.globalPosition.dy - initY;
+//     initX = details.globalPosition.dx;
+//     initY = details.globalPosition.dy;
+//     widget.onDrag!(dx, dy);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onPanStart: _handleDrag,
+//       onPanUpdate: _handleUpdate,
+//       child: Container(
+//         width: ballDiameter,
+//         height: ballDiameter,
+//         decoration: BoxDecoration(
+//           color: Colors.blue.withOpacity(0.5),
+//           shape: BoxShape.circle,
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class ExampleLine extends CustomPainter {
+//   double xaxis, yaxis;
+//   ExampleLine({required this.xaxis, required this.yaxis});
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     Paint line = Paint()
+//       ..color = Colors.red
+//       ..style = PaintingStyle.stroke
+//       ..strokeWidth = 1;
+//     Path pline = Path();
+//     pline.moveTo(xaxis / 2, yaxis / 2);
+//     pline.relativeLineTo(-xaxis / 2, -yaxis / 2);
+//     pline.close();
+
+//     canvas.drawPath(pline, line);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+//     return false;
+//   }
+// }
