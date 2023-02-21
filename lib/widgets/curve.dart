@@ -1,17 +1,21 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 enum CanvasState { pan, draw }
 
 class InfiniteCanvasPage extends StatefulWidget {
   final int i;
+
   InfiniteCanvasPage(this.i);
+
   @override
   _InfiniteCanvasPageState createState() => _InfiniteCanvasPageState();
 }
 
 class _InfiniteCanvasPageState extends State<InfiniteCanvasPage> {
   List<Offset> points = [];
+  Offset? firstPoint;
   CanvasState canvasState = CanvasState.draw;
   Offset offset = Offset(0, 0);
 
@@ -21,13 +25,22 @@ class _InfiniteCanvasPageState extends State<InfiniteCanvasPage> {
       backgroundColor: Colors.transparent,
       body: GestureDetector(
         onPanDown: (details) {
-          this.setState(() {
+          setState(() {
+            firstPoint ??= details.localPosition - offset;
             points.add(details.localPosition - offset);
           });
         },
         onPanUpdate: (details) {
-          this.setState(() {
+          setState(() {
+            firstPoint ??= details.localPosition - offset;
             points.add(details.localPosition - offset);
+          });
+        },
+        onDoubleTap: () {
+          setState(() {
+            if (firstPoint != null && points.length >= 2) {
+              points.add(firstPoint!);
+            }
           });
         },
         onPanEnd: (details) {},
